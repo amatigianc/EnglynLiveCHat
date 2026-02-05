@@ -1,0 +1,39 @@
+<apex:page >
+ <script type='text/javascript'>
+ 
+ const queryString = window.location.search;
+            console.log(queryString);  
+            
+            const urlParams = new URLSearchParams(queryString);
+ 
+            let lang = urlParams.get('lang')
+            console.log(lang);
+            
+            if (lang == null) {
+              lang = 'tr';
+              console.log("The value is undefined");
+            } else if (lang == 'suptrk') {
+              lang = 'tr'
+            }
+            console.log(lang);
+            
+    function initEmbeddedMessaging() {
+        try {
+            embeddedservice_bootstrap.settings.language = lang; // For example, enter 'en' or 'en-US'
+
+            embeddedservice_bootstrap.init(
+                '00D200000008VAS',
+                'Superbahis_for_MIAW',
+                'https://d200000008vasea2.my.site.com/ESWTestOmniFlowforMIA1721231450165',
+                {
+                    scrt2URL: 'https://d200000008vasea2.my.salesforce-scrt.com'
+                }
+            );
+        } catch (err) {
+            console.error('Error loading Embedded Messaging: ', err);
+        }
+    };
+</script>
+<script type='text/javascript' src='https://d200000008vasea2.my.site.com/ESWTestOmniFlowforMIA1721231450165/assets/js/bootstrap.min.js' onload='initEmbeddedMessaging()'></script>
+
+</apex:page>

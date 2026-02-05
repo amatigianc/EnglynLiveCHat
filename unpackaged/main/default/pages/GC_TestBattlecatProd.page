@@ -1,0 +1,34 @@
+<apex:page language="fi">
+  <script type='text/javascript'>
+ 
+      window.addEventListener("onEmbeddedMessagingReady", () => {
+    console.log("Received the onEmbeddedMessagingReady event…");
+
+    embeddedservice_bootstrap.prechatAPI.setHiddenPrechatFields({
+         "SB_Pin" : "148530572",  //VIP Account with BCP platinum
+        "Origin_Country" : "MAMMONAKASINO_VIP",
+        "Browser_Language":"fi",
+        "loggedUser" : "Logged"
+        });
+    }); 
+
+   function initEmbeddedMessaging() {
+        try {
+            embeddedservice_bootstrap.settings.language = 'fi'; // For example, enter 'en' or 'en-US'
+
+            embeddedservice_bootstrap.init(
+                '00D200000008VAS',
+                'Mammona_EN_Player_for_MIAW',
+                'https://d200000008vasea2.my.site.com/ESWMammonaENPlayerfor1763673577336',
+                {
+                    scrt2URL: 'https://d200000008vasea2.my.salesforce-scrt.com'
+                }
+            );
+        } catch (err) {
+            console.error('Error loading Embedded Messaging: ', err);
+        }
+    };
+</script>
+<script type='text/javascript' src='https://d200000008vasea2.my.site.com/ESWMammonaENPlayerfor1763673577336/assets/js/bootstrap.min.js' onload='initEmbeddedMessaging()'></script>
+ 
+</apex:page>

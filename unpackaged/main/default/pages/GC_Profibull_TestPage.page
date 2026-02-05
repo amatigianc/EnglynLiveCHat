@@ -1,0 +1,34 @@
+<apex:page language="en">
+  
+    <script type='text/javascript'>
+    window.addEventListener("onEmbeddedMessagingReady", () => {
+    console.log("Received the onEmbeddedMessagingReady event…");
+
+    // Send data to Salesforce
+    embeddedservice_bootstrap.prechatAPI.setHiddenPrechatFields({"Origin_Country" : "PROFI_EN",
+    "SB_Pin":"14299069"});
+
+ });
+    
+    
+    
+    function initEmbeddedMessaging() {
+        try {
+            embeddedservice_bootstrap.settings.language = 'en'; // For example, enter 'en' or 'en-US'
+
+            embeddedservice_bootstrap.init(
+                '00D200000008VAS',
+                'Profibull_EN_for_MIAW',
+                'https://d200000008vasea2.my.site.com/ESWProfibullENforMIAW1763674211388',
+                {
+                    scrt2URL: 'https://d200000008vasea2.my.salesforce-scrt.com'
+                }
+            );
+        } catch (err) {
+            console.error('Error loading Embedded Messaging: ', err);
+        }
+    };
+</script>
+<script type='text/javascript' src='https://d200000008vasea2.my.site.com/ESWProfibullENforMIAW1763674211388/assets/js/bootstrap.min.js' onload='initEmbeddedMessaging()'></script>
+
+</apex:page>

@@ -1,0 +1,194 @@
+<apex:page >
+
+
+<html xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <head>
+<script src="/static/111213/js/perf/stub.js" type="text/javascript"></script><script src="/jslibrary/1746627307256/sfdc/IframeThirdPartyContextLogging.js" type="text/javascript"></script><script src="/jslibrary/1743001299256/sfdc/main.js" type="text/javascript"></script><script src="/jslibrary/jslabels/1758913936000/en_US.js" type="text/javascript"></script><link class="user" href="/slds/css/6f4jbsbTfeNz9Yi7_ty0Sw/min/lightningstylesheets/one:oneNamespace,force:sldsTokens,force:base,force:oneSalesforceSkin,force:levelOneDensity,force:themeTokens,force:formFactorLarge/slds.css" rel="stylesheet" type="text/css" /><link class="user" href="/slds/css/vfnWtIKFUrKtxBuqGMp9TQ/min/scoped/one:oneNamespace,force:sldsTokens,force:base,force:oneSalesforceSkin,force:levelOneDensity,force:themeTokens,force:formFactorLarge/slds.css" rel="stylesheet" type="text/css" /><script src="/jslibrary/1647410351256/sfdc/NetworkTracking.js" type="text/javascript"></script><script>try{ NetworkTracking.init('/_ui/networks/tracking/NetworkTrackingServlet', 'network', '066P10000000xt0'); }catch(x){}</script><script>(function(UITheme) {
+    UITheme.getUITheme = function() { 
+        return UserContext.uiTheme;
+    };
+}(window.UITheme = window.UITheme || {}));</script><meta HTTP-EQUIV="PRAGMA" CONTENT="NO-CACHE" />
+<meta HTTP-EQUIV="Expires" content="Mon, 01 Jan 1990 12:00:00 GMT" />
+
+      <title>Test Messaging | Salesforce</title>
+      <style type="text/css">
+            @font-face {
+                font-family: ITC Avant Garde;
+                src: url(https://a.sfdcstatic.com/shared/fonts/avant-garde/4c0a2f1e-8b66-47d8-8e7c-9b259c4d363f.woff2) format("woff2"),url(https://a.sfdcstatic.com/shared/fonts/avant-garde/f8c88707-ed03-43dd-aec9-29571c329bcc.woff) format("woff");
+                font-weight: 400
+            }
+            
+            body {
+                background: #EAF5FE;
+                font-family: system-ui;
+            }
+            
+            #bgImage {
+                min-height: 100%;
+                min-width: 1024px;
+                width: 100%;
+                height: auto;
+                position: fixed;
+                top: 350px;
+                left: -64px;
+                background-image: url(/projRes/ui-admin-success-components/img/easy-onboarding-bg.jpg);
+                background-repeat: no-repeat;
+                background-size: cover;
+                z-index: -99999;
+            }
+            #mainContainer {
+                margin-top: 34px;
+                margin-left: 34px;
+            }
+            
+            #bodyContainer {
+                margin-left: 30px;
+            }
+            
+            #bodyContainer h1 {
+                font-family: ITC Avant Garde;
+                font-weight: 600;
+                font-size: 48px;            
+                color: #032D60;
+            }
+            
+            #bodyContainer ol {
+                list-style: decimal;
+            }
+            
+            #bodyContainer ol li {
+                margin-left: 0px;
+                margin-bottom: 16px;
+                font-weight: 500;
+                font-size: 16px;
+                line-height: 24px;
+                color: #001639;
+            }
+
+            #accordion {
+                background-color: #eee;
+                width: 75%;
+                cursor: pointer;
+                padding: 15px;
+                margin-top: 10px;
+                border: none;
+                border-radius: 10px;
+                text-align: left;
+                outline: none;
+                transition: 0.4s;
+            }
+
+            #accordion img {
+                display: inline;
+                width: 16px;
+                margin-right: 10px;
+            }
+
+            .active, #accordion:hover {
+                background-color: #ccc; 
+            }
+
+            #accordion .chevrondown {
+                display: none;
+            }
+
+            #accordion.active .chevronright {
+                display: none;
+            }
+
+            #accordion.active .chevrondown {
+                display: inline;
+            }
+
+            #videoDemoContainer {
+                margin: 20px 0px;
+                width: 330px;
+                height: 452px;
+                display: none;
+            }
+            
+            .embeddedMessagingConversationButton {
+                background-color: purple !important;
+            }        
+                        
+        </style>
+
+    </head>
+    <body>
+      <div id="bgImage"></div>
+      <div id="mainContainer">
+          <div id="logoContainer">
+              <img alt="Salesforce logo" id="logo" src="https://c1.sfdcstatic.com/content/dam/sfdc-docs/www/logos/logo-salesforce.svg" width="65px" />
+          </div>
+          <div id="bodyContainer">
+              <h1>Test Your Messaging Deployment</h1>
+             
+          </div>
+      </div>
+    
+      <script type="text/javascript">    
+
+            const queryString = window.location.search;
+            console.log(queryString);  
+            
+            const urlParams = new URLSearchParams(queryString);
+
+            let lang = urlParams.get('lang')
+            console.log(lang);
+            
+            if (lang == '') {
+              lang = 'tr';
+              console.log("The value is undefined");
+            } else if (lang == 'suptrk') {
+              lang = 'tr'
+            }
+            console.log(lang);
+            
+            
+            const CustomerName = urlParams.get('CustomerName')
+            console.log(CustomerName);
+            
+            const CustomerID = urlParams.get('CustomerID')
+            console.log(CustomerID);
+            
+            const country = urlParams.get('country')
+            console.log(country);
+            
+      
+            function initEmbeddedMessaging() {
+                try {
+                    embeddedservice_bootstrap.settings.language = 'tr'; // For example, enter 'en' or 'en-US'
+
+                    embeddedservice_bootstrap.init(
+                        '00D200000008VAS',
+                        'Superbahis_for_MIAW',
+                        'https://d200000008vasea2.my.site.com/ESWTestOmniFlowforMIA1721231450165',
+                        {
+                            scrt2URL: 'https://d200000008vasea2.my.salesforce-scrt.com'
+                        }
+                    );
+                } catch (err) {
+                    console.error('Error loading Embedded Messaging: ', err);
+                }
+            };
+            
+    
+            window.addEventListener("onEmbeddedMessagingReady", e => {
+                //log event
+                console.log("onEmbeddedMessagingReady event triggered");
+                      
+              
+                //Set invisible prechat field
+                embeddedservice_bootstrap.prechatAPI.setHiddenPrechatFields({
+                    "SB_Pin" : CustomerID,
+                    "Origin_Country" : country,
+                    
+                });
+            });
+                        
+        </script>
+        <script onload="initEmbeddedMessaging()" src="https://d200000008vasea2.my.site.com/ESWTestOmniFlowforMIA1721231450165/assets/js/bootstrap.min.js" type="text/javascript"></script>
+
+    </body>
+  </html><script>if (this.SfdcApp && this.SfdcApp.projectOneNavigator) { SfdcApp.projectOneNavigator.sendTitleToParent('ESWSuperbahisMIA1721231450165'); } </script>
+</apex:page>

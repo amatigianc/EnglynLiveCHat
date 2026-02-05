@@ -1,0 +1,46 @@
+<apex:page showHeader="false" sidebar="false" applyHtmlTag="true" docType="html-5.0">
+    <head>
+        <title>Test Chat</title>
+        <style>
+            #logo {
+                text-align: center;
+                padding: 15px;
+                background-color: #f5f5f5;
+                margin-bottom: 20px;
+            }
+            #logo img {
+                max-height: 50px;
+            }
+        </style>
+          <script type='text/javascript' src='https://c.la11-core1.sfdc-5pakla.salesforceliveagent.com/content/g/js/63.0/deployment.js'></script>
+    </head>
+    <body>
+  
+<script type='text/javascript'>
+liveagent.init('https://d.la11-core1.sfdc-5pakla.salesforceliveagent.com/chat', '572D0000000GnMY', '00D200000008VAS');
+</script>
+        <div id="logo">
+            <img src="https://d200000008vasea2.my.salesforce.com/servlet/servlet.ImageServer?id=015P100000AW7i9&oid=00D200000008VAS&lastMod=1749199997000" alt="Company Logo"/>
+        </div>
+
+        <!-- Your chat button -->
+        <a id="liveagent_button_online_573P10000008Mo9" href="javascript://Chat" style="display: none;" onclick="liveagent.startChat('573P10000008Mo9')">
+            <!-- Online Chat Content -->
+            <button style="padding: 10px 20px; font-size: 16px; cursor: pointer;">Chat with Us</button>
+        </a>
+        <div id="liveagent_button_offline_573P10000008Mo9" style="display: none;">
+            <!-- Offline Chat Content -->
+            <p>Sorry, we are currently offline.</p>
+        </div>
+
+        <script type="text/javascript">
+            if (!window._laq) { window._laq = []; }
+            window._laq.push(function() {
+                liveagent.showWhenOnline('573P10000008Mo9', document.getElementById('liveagent_button_online_573P10000008Mo9'));
+                liveagent.showWhenOffline('573P10000008Mo9', document.getElementById('liveagent_button_offline_573P10000008Mo9'));
+            });
+        </script>
+        
+        <!-- Be sure to include the Live Agent deployment scripts in your org somewhere, or add them here -->
+    </body>
+</apex:page>

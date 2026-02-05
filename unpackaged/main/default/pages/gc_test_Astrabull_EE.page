@@ -1,0 +1,30 @@
+<apex:page showHeader="false" sidebar="false">
+    <h1>Welcome to Our Support Page</h1>
+    <p>Click below to chat with a support agent:</p>
+
+    <!-- Online Chat Link -->
+    <div id="liveagent_button_online" style="display: none;">
+        <a href="javascript:void(0)" onclick="liveagent.startChat('573P10000008XWf')" style="color: green; font-weight: bold;">
+            Chat with a Live Agent (Online)
+        </a>
+    </div>
+
+    <!-- Offline Message -->
+    <div id="liveagent_button_offline" style="display: none; color: gray;">
+        Chat is currently unavailable. Please try again later.
+    </div>
+
+    <!-- Live Agent Initialization -->
+    <script type='text/javascript'>
+        window._laq = window._laq || [];
+        window._laq.push(function(){
+            liveagent.showWhenOnline('573P10000008XWf', document.getElementById('liveagent_button_online'));
+            liveagent.showWhenOffline('573P10000008XWf', document.getElementById('liveagent_button_offline'));
+        });
+
+        liveagent.init('https://d200000008vasea2.salesforceliveagent.com/chat', '573P10000008XWf', '00D200000008VAS');
+    </script>
+
+    <!-- Live Agent Library -->
+    <script type='text/javascript' src='https://d200000008vasea2.salesforceliveagent.com/content/g/js/53.0/deployment.js'></script>
+</apex:page>
