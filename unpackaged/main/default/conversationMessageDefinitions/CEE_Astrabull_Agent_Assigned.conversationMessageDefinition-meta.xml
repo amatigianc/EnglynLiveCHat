@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ConversationMessageDefinition xmlns="http://soap.sforce.com/2006/04/metadata">
+    <constants>
+        <constantType>Custom</constantType>
+        <label>body</label>
+        <name>body</name>
+        <primitiveValues>
+            <textValue>Hello! How can I be of assistance?</textValue>
+            <type>Text</type>
+        </primitiveValues>
+        <valueType>Text</valueType>
+    </constants>
+    <constants>
+        <constantType>Title</constantType>
+        <primitiveValues>
+            <textValue>Chat assigned</textValue>
+            <type>Text</type>
+        </primitiveValues>
+    </constants>
+    <label>CEE - Start Conversation</label>
+    <language>en_US</language>
+    <messageLayouts>
+        <formatType>Text</formatType>
+        <layoutItems>
+            <collectionType>None</collectionType>
+            <name>text</name>
+            <primitiveValues>
+                <formulaTemplate>{!$Constants.body}</formulaTemplate>
+                <type>FormulaTemplate</type>
+            </primitiveValues>
+        </layoutItems>
+        <messageType>StaticContent</messageType>
+    </messageLayouts>
+    <type>AutoResponse</type>
+</ConversationMessageDefinition>

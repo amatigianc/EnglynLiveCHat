@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Bot xmlns="http://soap.sforce.com/2006/04/metadata">
+    <agentDSLEnabled>false</agentDSLEnabled>
+    <botMlDomain>
+        <label>Customer Service</label>
+        <mlSlotClasses>
+            <dataType>Text</dataType>
+            <developerName>tmpCloseChatResponse</developerName>
+            <extractionType>Value</extractionType>
+            <label>tmpCloseChatResponse</label>
+        </mlSlotClasses>
+        <name>Customer_Service</name>
+    </botMlDomain>
+    <botSource>None</botSource>
+    
+    <contextVariables>
+        <dataType>Text</dataType>
+        <description>This variable may also be referred to as LiveChatTranscript ChatKey</description>
+        <developerName>ChatKey</developerName>
+        <includeInPrompt>false</includeInPrompt>
+        <label>Chat Key</label>
+    </contextVariables>
+    <contextVariables>
+        <dataType>Id</dataType>
+        <description>This variable may also be referred to as MessagingEndUser ContactId</description>
+        <developerName>ContactId</developerName>
+        <includeInPrompt>false</includeInPrompt>
+        <label>Player Acc Id</label>
+    </contextVariables>
+    <contextVariables>
+        <dataType>Id</dataType>
+        <description>This variable may also be referred to as MessagingEndUser Id</description>
+        <developerName>EndUserId</developerName>
+        <includeInPrompt>true</includeInPrompt>
+        <label>End User Id</label>
+    </contextVariables>
+    <contextVariables>
+        <dataType>Id</dataType>
+        <description>This variable may also be referred to as MessagingSession Id</description>
+        <developerName>RoutableId</developerName>
+        <includeInPrompt>true</includeInPrompt>
+        <label>Routable Id</label>
+    </contextVariables>
+    <contextVariables>
+        <dataType>Id</dataType>
+        <description>This variable may also be referred to as VoiceCall Id</description>
+        <developerName>VoiceCallId</developerName>
+        <includeInPrompt>true</includeInPrompt>
+        <label>Voice Call Id</label>
+    </contextVariables>
+    <description>A bot from scratch.</description>
+    <label>Customer Service</label>
+    <logPrivateConversationData>false</logPrivateConversationData>
+    <richContentEnabled>false</richContentEnabled>
+    <sessionTimeout>0</sessionTimeout>
+    <type>Bot</type>
+</Bot>

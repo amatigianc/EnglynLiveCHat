@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ConversationMessageDefinition xmlns="http://soap.sforce.com/2006/04/metadata">
+    <constants>
+        <constantType>Title</constantType>
+        <primitiveValues>
+            <textValue>Teşekkürler</textValue>
+            <type>Text</type>
+        </primitiveValues>
+    </constants>
+    <label>Betboo Survey</label>
+    <language>en_US</language>
+    <messageLayouts>
+        <formatType>WebView</formatType>
+        <layoutItems>
+            <collectionType>None</collectionType>
+            <name>displayType</name>
+            <primitiveValues>
+                <literalValue>AutoOverlay</literalValue>
+                <type>Literal</type>
+            </primitiveValues>
+        </layoutItems>
+        <layoutItems>
+            <collectionType>None</collectionType>
+            <compositeValues>
+                <compositeTypeName>TitleItem</compositeTypeName>
+                <layoutItems>
+                    <collectionType>None</collectionType>
+                    <name>title</name>
+                    <primitiveValues>
+                        <type>SourcePrimitiveValue</type>
+                        <valueSourceReference>Constants.Title</valueSourceReference>
+                    </primitiveValues>
+                </layoutItems>
+            </compositeValues>
+            <name>title</name>
+        </layoutItems>
+        <layoutItems>
+            <collectionType>None</collectionType>
+            <name>url</name>
+            <primitiveValues>
+                <type>SourceSobjectFormula</type>
+                <valueFormula>IF (ISPICKVAL(AgentType,&#39;Agent&#39;),&#39;https://d200000008vasea2.my.site.com/Surveys/s/betbooresponderpage?recordId=a3YP10000018Prt&amp;logicalId=c4b5ea67-8e16-51df-0d5f-7a5c51042355&amp;fromChat=true&amp;targetId=&#39;+Id
+,&#39;&#39;)</valueFormula>
+                <valueSourceReference>Parameters.MessagingSession</valueSourceReference>
+            </primitiveValues>
+        </layoutItems>
+        <messageType>StaticContent</messageType>
+    </messageLayouts>
+    <messageLayouts>
+        <formatType>Text</formatType>
+        <layoutItems>
+            <collectionType>None</collectionType>
+            <name>text</name>
+            <primitiveValues>
+                <formulaTemplate>Teşekkürler</formulaTemplate>
+                <type>FormulaTemplate</type>
+            </primitiveValues>
+        </layoutItems>
+        <messageType>StaticContent</messageType>
+    </messageLayouts>
+    <type>AutoResponse</type>
+</ConversationMessageDefinition>
