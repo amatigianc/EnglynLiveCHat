@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>First_Agent_Response_Time__c</fullName>
+    <description>Timestamp when the first agent message was sent in this conversation.</description>
+    <inlineHelpText>Date and time of the first agent response, used for response time metrics.</inlineHelpText>
+    <label>First Agent Response Time</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>DateTime</type>
+</CustomField>
