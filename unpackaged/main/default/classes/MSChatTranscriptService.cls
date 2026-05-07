@@ -1,38 +1,33 @@
 public with sharing class MSChatTranscriptService {
-
     public static void processSessions(List<MessagingSession> sessions) {
-        List<MSChat_Transcript__c> toUpsert = new List<MSChat_Transcript__c>();
+        Map<String, MSChat_Transcript__c> toUpsertMap = new Map<String, MSChat_Transcript__c>();
         List<MSChat_Transcript__c> toInsertErrors = new List<MSChat_Transcript__c>();
 
         for (MessagingSession ms : sessions) {
+            String convId = ms.Conversation?.ConversationIdentifier;
+            if (String.isBlank(convId)) continue;
+
             try {
                 MSChat_Transcript__c rec = buildTranscript(ms);
-                if (rec != null) {
-                    toUpsert.add(rec);
-                }
+                if (rec != null) toUpsertMap.put(convId, rec);
             } catch (Exception e) {
                 toInsertErrors.add(new MSChat_Transcript__c(
                     Messaging_Session__c = ms.Id,
-                    Conversation_Identifier__c = String.valueOf(ms.Id),
-                    Error_Message__c = e.getMessage(),
+                    Conversation_Identifier__c = convId,
+                    Error_Message__c = e.getMessage() + ' (Line: ' + e.getLineNumber() + ')',
                     Status__c = 'Error'
                 ));
             }
         }
 
-        if (!toUpsert.isEmpty()) {
-            upsert toUpsert Conversation_Identifier__c;
-        }
-
-        if (!toInsertErrors.isEmpty()) {
-            insert toInsertErrors;
-        }
+        if (!toUpsertMap.isEmpty()) upsert toUpsertMap.values() Conversation_Identifier__c;
+        if (!toInsertErrors.isEmpty()) insert toInsertErrors;
     }
 
     private static MSChat_Transcript__c buildTranscript(MessagingSession ms) {
-        String endpoint = URL.getOrgDomainUrl().toExternalForm() +
-            '/services/data/v60.0/connect/messagingSessions/' +
-            ms.Id + '/conversationEntries';
+        String convId = ms.Conversation.ConversationIdentifier;
+        String endpoint = URL.getOrgDomainUrl().toExternalForm() + 
+                         '/services/data/v60.0/connect/conversation/' + convId + '/entries';
 
         HttpRequest req = new HttpRequest();
         req.setEndpoint(endpoint);
@@ -42,52 +37,67 @@ public with sharing class MSChatTranscriptService {
 
         Http http = new Http();
         HttpResponse res = http.send(req);
-
-        if (res.getStatusCode() != 200) {
-            throw new CalloutException('API failed: ' + res.getBody());
-        }
+        if (res.getStatusCode() != 200) throw new CalloutException('HTTP ' + res.getStatusCode());
 
         Map<String, Object> payload = (Map<String, Object>) JSON.deserializeUntyped(res.getBody());
-        List<Object> entries = (List<Object>) payload.get('entries');
+        List<Object> entries = (List<Object>) payload.get('conversationEntries');
 
-        String transcriptText = '';
+        String htmlTranscript = '<div style="font-family: sans-serif; line-height: 1.5;">';
         Integer total = 0;
-        String firstAgentMessage = null;
-        String firstAgentName = null;
-        Datetime firstAgentTime = null;
+        String firstHumanMsg = null;
+        String firstHumanName = null;
+        Datetime firstHumanTime = null;
 
-        if (entries != null) {
-            for (Object obj : entries) {
+        if (entries != null && !entries.isEmpty()) {
+            // STEP 1: Reverse the list to get Oldest -> Newest order
+            List<Object> chronologicalEntries = new List<Object>();
+            for(Integer i = entries.size() - 1; i >= 0; i--) {
+                chronologicalEntries.add(entries[i]);
+            }
+
+            for (Object obj : chronologicalEntries) {
                 Map<String, Object> entry = (Map<String, Object>) obj;
-                if (entry.get('entryType') == 'Message') {
+                String msg = (String) entry.get('messageText');
+
+                if (String.isNotBlank(msg)) {
                     total++;
-                    String actor = (String) entry.get('actorType');
-                    String msg = (String) entry.get('messageText');
-                    String timeStr = (String) entry.get('timestamp');
+                    Map<String, Object> sender = (Map<String, Object>) entry.get('sender');
+                    String role = (sender != null) ? (String) sender.get('role') : 'System';
+                    String actorType = (String) entry.get('actorType'); 
+                    String displayName = (sender != null) ? (String) sender.get('displayName') : 'Agent';
 
-                    transcriptText += '[' + timeStr + '] ' + actor + ': ' + msg + '\n';
+                    Object tsObj = entry.get('serverReceivedTimestamp');
+                    Datetime msgDt = (tsObj != null) ? Datetime.newInstance((Long) tsObj) : null;
+                    String formattedTime = (msgDt != null) ? msgDt.format('yyyy-MM-dd HH:mm:ss') : 'Unknown';
 
-                    if (actor == 'Agent' && firstAgentMessage == null) {
-                        firstAgentMessage = msg;
-                        firstAgentName = (String) entry.get('actorName');
-                        if (timeStr != null) {
-                            firstAgentTime = (Datetime)JSON.deserialize('"' + timeStr + '"', Datetime.class);
-                        }
+                    // STEP 2: Logic - The first 'Agent' we hit in Chronological order is the REAL first response
+                    Boolean isHumanAgent = (actorType == 'Agent') || (role == 'Agent' && actorType == null);
+                    if (isHumanAgent && firstHumanMsg == null) {
+                        firstHumanMsg = msg;
+                        firstHumanName = displayName;
+                        firstHumanTime = msgDt;
                     }
+
+                    // STEP 3: HTML - Standard appending (+=) puts oldest at the top
+                    String color = (role == 'EndUser') ? '#005fb2' : (role == 'Agent') ? '#027e36' : '#747474';
+                    htmlTranscript += '<p style="margin-bottom: 10px; border-left: 3px solid ' + color + '; padding-left: 10px;">' +
+                                      '<span style="color: #747474; font-size: 0.85em;">' + formattedTime + '</span><br/>' +
+                                      '<b style="color: ' + color + ';">' + role.toUpperCase() + ':</b> ' + msg + '</p>';
                 }
             }
         }
+        htmlTranscript += '</div>';
 
         return new MSChat_Transcript__c(
             Messaging_Session__c = ms.Id,
-            Conversation_Identifier__c = String.valueOf(ms.Id),
-            Full_Transcript__c = transcriptText,
+            Conversation_Identifier__c = convId,
+            Full_Transcript__c = (total > 0) ? htmlTranscript : 'No Transcript Available',
             Total_Messages__c = total,
-            First_Agent_Message__c = (firstAgentMessage != null && firstAgentMessage.length() > 255) ? firstAgentMessage.substring(0, 255) : firstAgentMessage,
-            First_Agent_Name__c = firstAgentName,
-            First_Agent_Response_Time__c = firstAgentTime,
+            First_Agent_Message__c = (firstHumanMsg != null) ? firstHumanMsg.left(255) : null,
+            First_Agent_Name__c = firstHumanName,
+            First_Agent_Response_Time__c = firstHumanTime,
             Session_End_Time__c = ms.EndTime,
-            Status__c = 'Completed'
+            Status__c = (total > 0) ? 'Completed' : 'No Text Found'
         );
     }
 }

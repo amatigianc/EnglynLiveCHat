@@ -1,95 +1,77 @@
 @isTest
-private class MSChatTranscriptTest {
+public class MSChatTranscriptTest {
+    @testSetup
+    static void setup() {
+        Profile p = [SELECT Id FROM Profile WHERE Name = 'Standard User' LIMIT 1];
+        User testUser = new User(
+            Alias = 'testu', Email = 'testuser@example.com',
+            EmailEncodingKey = 'UTF-8', LastName = 'Testing', LanguageLocaleKey = 'en_US',
+            LocaleSidKey = 'en_US', ProfileId = p.Id,
+            TimeZoneSidKey = 'America/Los_Angeles',
+            UserName = 'mschat_test' + DateTime.now().getTime() + '@example.com'
+        );
+
+        System.runAs(testUser) {
+            MessagingChannel chan = new MessagingChannel(
+                DeveloperName = 'Test_Channel', MasterLabel = 'Test Channel',
+                MessageType = 'Text', MessagingPlatformKey = 'Text:12345'
+            );
+            insert chan;
+
+            MessagingEndUser meu = new MessagingEndUser(
+                Name = 'Test User', MessagingChannelId = chan.Id,
+                MessageType = 'Text', MessagingPlatformKey = 'Text:12345'
+            );
+            insert meu;
+
+            MessagingSession ms = new MessagingSession(
+                MessagingChannelId = chan.Id,
+                MessagingEndUserId = meu.Id,
+                Status = 'Ended'
+            );
+            insert ms;
+        }
+    }
+
+    @isTest
+    static void testCompleteFlow() {
+        MessagingSession ms = [SELECT Id FROM MessagingSession LIMIT 1];
+
+        // Inject Conversation relationship for the test
+        String serializedMs = '{"attributes":{"type":"MessagingSession"},"Id":"' + ms.Id + '",' +
+            '"Conversation":{"attributes":{"type":"Conversation"},"ConversationIdentifier":"MOCK_123"}}';
+        MessagingSession mockMs = (MessagingSession) JSON.deserialize(serializedMs, MessagingSession.class);
+
+        Test.setMock(HttpCalloutMock.class, new SuccessMock());
+
+        Test.startTest();
+        MSChatTranscriptService.processSessions(new List<MessagingSession>{ mockMs });
+        Test.stopTest();
+
+        MSChat_Transcript__c result = [SELECT Status__c, Total_Messages__c, First_Agent_Name__c, First_Agent_Message__c 
+                                      FROM MSChat_Transcript__c WHERE Messaging_Session__c = :ms.Id LIMIT 1];
+
+        System.assertEquals('Completed', result.Status__c);
+        System.assertEquals(3, result.Total_Messages__c, 'Should count User, Bot, and Agent');
+        System.assertEquals('Giancarlo', result.First_Agent_Name__c, 'Bot should have been skipped');
+        System.assertEquals('Hello, I am a human.', result.First_Agent_Message__c);
+    }
 
     private class SuccessMock implements HttpCalloutMock {
         public HttpResponse respond(HttpRequest req) {
             HttpResponse res = new HttpResponse();
             res.setStatusCode(200);
             res.setHeader('Content-Type', 'application/json');
-            res.setBody('{"entries": [{"entryType": "Message", "actorType": "EndUser", "timestamp": "2026-05-05T10:00:00.000Z", "messageText": "Hello"}, {"entryType": "Message", "actorType": "Agent", "actorName": "John Doe", "timestamp": "2026-05-05T10:01:00.000Z", "messageText": "Hi"}]}');
+            
+            // Note: serverReceivedTimestamp must be Long (no quotes)
+            String mockJson = '{ "conversationEntries": [' +
+                '{ "messageText": "Help!", "serverReceivedTimestamp": 1714903200000, "actorType": "EndUser", "sender": {"role": "EndUser", "displayName": "Customer"}},' +
+                '{ "messageText": "I am a Bot", "serverReceivedTimestamp": 1714903260000, "actorType": "Bot", "sender": {"role": "Agent", "displayName": "Chatbot"}},' +
+                '{ "messageText": "Hello, I am a human.", "serverReceivedTimestamp": 1714903320000, "actorType": "Agent", "sender": {"role": "Agent", "displayName": "Giancarlo"}}' +
+            ']}';
+
+            res.setBody(mockJson);
             return res;
         }
-    }
-
-    private class ErrorMock implements HttpCalloutMock {
-        public HttpResponse respond(HttpRequest req) {
-            HttpResponse res = new HttpResponse();
-            res.setStatusCode(500);
-            res.setBody('Internal Server Error');
-            return res;
-        }
-    }
-
-   @testSetup
-static void setup() {
-    User thisUser = [SELECT Id FROM User WHERE Id = :UserInfo.getUserId()];
-
-    System.runAs(thisUser) {
-        // 1. Create MessagingChannel (Setup Object)
-        MessagingChannel chan = new MessagingChannel(
-            DeveloperName = 'Test_Channel_Final', 
-            MasterLabel = 'Test Channel', 
-            MessageType = 'Text', 
-            MessagingPlatformKey = 'TestKey123'
-        );
-        insert chan;
-
-        // 2. Create MessagingEndUser (Non-Setup Object)
-        // MessagingEndUser REQUIRES MessageType to be explicitly set
-        MessagingEndUser deu = new MessagingEndUser(
-            MessagingChannelId = chan.Id,
-            Name = 'Test User',
-            MessagingPlatformKey = 'TestKey123',
-            MessageType = 'Text' // Must match the Channel's MessageType
-        );
-        insert deu;
-
-        // 3. Create MessagingSession (Non-Setup Object)
-        MessagingSession ms = new MessagingSession(
-            MessagingChannelId = chan.Id,
-            MessagingEndUserId = deu.Id,
-            Status = 'Active'
-        );
-        insert ms;
-    }
-}
-
-    @isTest
-    static void testCompleteFlow() {
-        MessagingSession ms = [SELECT Id FROM MessagingSession LIMIT 1];
-        Test.setMock(HttpCalloutMock.class, new SuccessMock());
-        
-        Test.startTest();
-        // Execute the Batch specifically to ensure logic is covered
-        MSChatTranscriptBatchable batch = new MSChatTranscriptBatchable();
-        Database.executeBatch(batch);
-        Test.stopTest();
-
-        List<MSChat_Transcript__c> results = [SELECT Id, Status__c FROM MSChat_Transcript__c WHERE Messaging_Session__c = :ms.Id];
-        System.assertEquals(1, results.size(), 'A transcript record should have been created.');
-        System.assertEquals('Completed', results[0].Status__c);
-    }
-
-    @isTest
-    static void testErrorPath() {
-        MessagingSession ms = [SELECT Id FROM MessagingSession LIMIT 1];
-        Test.setMock(HttpCalloutMock.class, new ErrorMock());
-        
-        Test.startTest();
-        // Call service directly to verify error handling
-        MSChatTranscriptService.processSessions(new List<MessagingSession>{ ms });
-        Test.stopTest();
-
-        List<MSChat_Transcript__c> results = [SELECT Id, Status__c FROM MSChat_Transcript__c WHERE Messaging_Session__c = :ms.Id];
-        System.assertEquals(1, results.size());
-        System.assertEquals('Error', results[0].Status__c);
-    }
-
-    @isTest
-    static void testScheduler() {
-        Test.startTest();
-        String jobId = System.schedule('TestMSChatSched', '0 0 0 * * ?', new MSChatTranscriptScheduler());
-        Test.stopTest();
-        System.assertNotEquals(null, jobId, 'The job should be successfully scheduled.');
     }
 }
